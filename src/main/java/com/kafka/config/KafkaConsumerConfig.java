@@ -59,27 +59,31 @@ public class KafkaConsumerConfig {
     @Bean
     public ConcurrentKafkaListenerContainerFactory<String, Employee> kafkaListenerContainerFactory(
             KafkaTemplate<String, Employee> kafkaTemplate) {
+
         ConcurrentKafkaListenerContainerFactory<String, Employee> factory = new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(consumerFactory());
         factory.setConcurrency(3);
         factory.getContainerProperties().setAckMode(org.springframework.kafka.listener.ContainerProperties.AckMode.MANUAL);
 
-        // Configure Dead Letter Queue
+        
         DeadLetterPublishingRecoverer recoverer = new DeadLetterPublishingRecoverer(kafkaTemplate,
                 (record, ex) -> new org.apache.kafka.common.TopicPartition(dlqTopic, -1));
 
-        // Configure Error Handler with Exponential Backoff
+        
         ExponentialBackOff backOff = new ExponentialBackOff(500L, 2.0);
-        backOff.setMaxInterval(10000L); // Maximum interval between retries
+        backOff.setMaxInterval(10000L);
+
+        
         DefaultErrorHandler errorHandler = new DefaultErrorHandler(recoverer, backOff);
 
-        // Configure retry attempts
+        
         errorHandler.setRetryListeners((record, ex, deliveryAttempt) -> {
-            // Log retry attempts for monitoring
-            System.out.println("Retry attempt #" + deliveryAttempt + " for record: " + record);
+            System.out.println("Retry attempt #" + deliveryAttempt + " for record: " + record + ", Exception: " + ex);
         });
 
-        // Add exceptions to be handled by DLQ
+        
+
+        
         errorHandler.addNotRetryableExceptions(
                 org.apache.kafka.common.errors.SerializationException.class,
                 IllegalArgumentException.class
@@ -87,19 +91,23 @@ public class KafkaConsumerConfig {
 
         factory.setCommonErrorHandler(errorHandler);
         factory.setRetryTemplate(retryTemplate());
+
         return factory;
     }
 
     @Bean
     public org.springframework.retry.support.RetryTemplate retryTemplate() {
         org.springframework.retry.support.RetryTemplate retryTemplate = new org.springframework.retry.support.RetryTemplate();
+
         org.springframework.retry.backoff.ExponentialBackOffPolicy backOffPolicy =
                 new org.springframework.retry.backoff.ExponentialBackOffPolicy();
         backOffPolicy.setInitialInterval(500L);
         backOffPolicy.setMultiplier(2.0);
         backOffPolicy.setMaxInterval(10000L);
+
         retryTemplate.setBackOffPolicy(backOffPolicy);
         retryTemplate.setRetryPolicy(new org.springframework.retry.policy.SimpleRetryPolicy(3));
+
         return retryTemplate;
     }
 }

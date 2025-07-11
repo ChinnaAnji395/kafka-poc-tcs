@@ -1,3 +1,5 @@
+
+
 package com.kafka.exception;
 
 import org.slf4j.Logger;
@@ -22,7 +24,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(Exception.class)
     public ResponseEntity<String> handleAllExceptions(Exception ex, WebRequest request) throws Exception {
         if (ex instanceof RuntimeException && ex.getMessage().contains("Service temporarily unavailable")) {
-            throw ex; // Let circuit breaker exceptions propagate
+            throw ex; 
         }
         logger.error("Unexpected error occurred: {}", ex.getMessage(), ex);
         return ResponseEntity.status(500)

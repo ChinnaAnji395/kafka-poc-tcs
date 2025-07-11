@@ -32,7 +32,8 @@ public class EmployeeConsumer {
             logger.info("Consumed employee: {} from partition {} offset {}", 
                        employee, record.partition(), record.offset());
             
-            // Simulate processing
+            
+            
             if (employee.getName() == null) {
                 throw new IllegalArgumentException("Invalid employee name");
             }
@@ -48,7 +49,7 @@ public class EmployeeConsumer {
 
     public void fallbackConsume(ConsumerRecord<String, Employee> record, Acknowledgment acknowledgment, Throwable t) {
         logger.error("Consumer fallback for record {} due to {}", record, t.getMessage());
-        // Send to DLQ automatically handled by ErrorHandler
+        
         acknowledgment.acknowledge();
     }
 

@@ -15,6 +15,7 @@ public class ConsumerFetchController {
 
     private final EmployeeConsumer employeeConsumer;
 
+   
     @GetMapping("/consumed")
     public ResponseEntity<List<Employee>> getConsumedEmployees() {
         return ResponseEntity.ok(employeeConsumer.getConsumedEmployees());

@@ -20,7 +20,8 @@ public class ProducerController {
     public ResponseEntity<String> publishEmployee(@RequestBody Employee employee) {
         logger.info("API request to publish: {}", employee);
         try {
-            employeeProducer.sendEmployee(employee).join();
+           
+        	employeeProducer.sendEmployee(employee).join();
             return ResponseEntity.ok("Published successfully");
         } catch (Exception ex) {
             logger.error("Kafka unavailable. Fallback returned. {}", ex.getMessage());
